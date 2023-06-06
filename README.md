@@ -1,5 +1,7 @@
 # terraform-in-21-days
 
+Automating AWS with Terraform
+
 ## Day 1 (Monday 5)
 
 ### 1. Testing feature branches.    
