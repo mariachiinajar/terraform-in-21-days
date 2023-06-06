@@ -1,6 +1,7 @@
 # terraform-in-21-days
 
 Automating AWS with Terraform
+We are using git branches to track changes
 
 ## Day 1 (Monday 5)
 
