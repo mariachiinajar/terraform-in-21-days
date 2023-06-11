@@ -1,7 +1,8 @@
-variable "public_subnet_0" {
-  
-}
+variable "vpc_cidr" {}
 
-variable "public_subnet_1" {
-  
-}
+variable "public_subnet_cidr" {}
+
+variable "private_subnet_cidr" {}
+
+variable "availability_zone" {}
+

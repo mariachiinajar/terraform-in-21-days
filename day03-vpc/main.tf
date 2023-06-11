@@ -1,146 +1,104 @@
-resource "aws_vpc" "main" {
-    cidr_block = "10.0.0.0/16"
+resource "aws_vpc" "terraform21" {
+  cidr_block = var.vpc_cidr
 
-    tags = {
-        Name = "terraform21"
-    }
+  tags = {
+    Name = "terraform21"
+  }
 }
 
-resource "aws_subnet" "public-0" {
-    vpc_id = aws_vpc.main.id
-    cidr_block = "10.0.0.0/24"
-    availability_zone = "us-east-1a"
+resource "aws_subnet" "tf-public" {
+  count = length(var.public_subnet_cidr)
 
-    tags = {
-        Name = "public-0"
-    }
+  vpc_id            = aws_vpc.terraform21.id
+  cidr_block        = var.public_subnet_cidr[count.index]
+  availability_zone = var.availability_zone[count.index]
+
+  tags = {
+    Name = "tf-public-${var.availability_zone[count.index]}"
+  }
 }
 
-resource "aws_subnet" "public-1" {
-    vpc_id = aws_vpc.main.id
-    cidr_block = "10.0.1.0/24"
-    availability_zone = "us-east-1b"
+resource "aws_subnet" "tf-private" {
+  count = length(var.private_subnet_cidr)
 
-    tags = {
-        Name = "public-1"
-     }
+  vpc_id            = aws_vpc.terraform21.id
+  cidr_block        = var.private_subnet_cidr[count.index]
+  availability_zone = var.availability_zone[count.index]
+
+  tags = {
+    Name = "tf-private-${var.availability_zone[count.index]}"
+  }
 }
 
-resource "aws_subnet" "private-2" {
-    vpc_id = aws_vpc.main.id
-    cidr_block = "10.0.2.0/24"
-    availability_zone = "us-east-1a"
+resource "aws_internet_gateway" "tf-ig" {
+  vpc_id = aws_vpc.terraform21.id
 
-    tags = {
-        Name = "private-2"
-     }
+  tags = {
+    Name = "tf-ig"
+  }
 }
 
-resource "aws_subnet" "private-3" {
-    vpc_id = aws_vpc.main.id
-    cidr_block = "10.0.3.0/24"
-    availability_zone = "us-east-1b"
+resource "aws_eip" "tf-nat" {
+  count = length(var.private_subnet_cidr)
 
-    tags = {
-        Name = "private-3"
-     }
+  vpc = true
+  tags = {
+    Name = "tf-nat-${count.index}"
+  }
 }
 
-resource "aws_internet_gateway" "main" {
-    vpc_id = aws_vpc.main.id
-    
-    tags = {
-        Name = "main"
-    }
+resource "aws_nat_gateway" "tf-nat-g" {
+  count = length(var.public_subnet_cidr)
+
+  allocation_id = aws_eip.tf-nat[count.index].id
+  subnet_id     = aws_subnet.tf-public[count.index].id
+
+  tags = {
+    Name = "tf-nat-g-{count.index}"
+  }
 }
 
-resource "aws_eip" "nat0" {
-    vpc = true
 
-    tags = {
-        Name = "nat0"
-    }
+resource "aws_route_table" "tf-public-rt" {
+  vpc_id = aws_vpc.terraform21.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.tf-ig.id
+  }
+
+  tags = {
+    Name = "tf-public-rt"
+  }
 }
 
-resource "aws_eip" "nat1" {
-    vpc = true
+resource "aws_route_table" "tf-private-rt" {
+  count = length(var.private_subnet_cidr)
 
-    tags = {
-        Name = "nat1"
-    }
+  vpc_id = aws_vpc.terraform21.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_nat_gateway.tf-nat-g[count.index].id
+  }
+
+  tags = {
+    Name = "tf-private-rt"
+  }
 }
 
-resource "aws_nat_gateway" "main0" {
-    allocation_id = aws_eip.nat0.id
-    subnet_id = aws_subnet.public-0.id
+resource "aws_route_table_association" "tf-public-rta" {
+  count = length(var.public_subnet_cidr)
 
-    tags = {
-        Name = "main0"
-    }
+  subnet_id      = aws_subnet.tf-public[count.index].id
+  route_table_id = aws_route_table.tf-public-rt.id
 }
 
-resource "aws_nat_gateway" "main1" {
-    allocation_id = aws_eip.nat1.id
-    subnet_id = aws_subnet.public-1.id
+resource "aws_route_table_association" "tf-private-rta" {
+  count = length(var.private_subnet_cidr)
 
-    tags = {
-        Name = "main1"
-    }
+  subnet_id      = aws_subnet.tf-private[count.index].id
+  route_table_id = aws_route_table.tf-private-rt[count.index].id
 }
 
-resource "aws_route_table" "public" {
-    vpc_id = aws_vpc.main.id
-    route {
-        cidr_block = "0.0.0.0/0"
-        gateway_id = aws_internet_gateway.main.id
-    }
-
-    tags = {
-        Name = "public"
-    }
+output "subnet-count" {
+    value = length(var.public_subnet_cidr)
 }
-
-resource "aws_route_table" "private0" {
-    vpc_id = aws_vpc.main.id
-    route {
-        cidr_block = "0.0.0.0/0"
-        gateway_id = aws_nat_gateway.main0.id
-    }
-
-    tags = {
-        Name = "private0"
-    }
-}
-
-resource "aws_route_table" "private1" {
-    vpc_id = aws_vpc.main.id
-    route {
-        cidr_block = "0.0.0.0/0"
-        gateway_id = aws_nat_gateway.main1.id
-    }
-
-    tags = {
-        Name = "private1"
-    }
-}
-
-resource "aws_route_table_association" "public0" {
-    subnet_id = aws_subnet.public-0.id
-    route_table_id = aws_route_table.public.id
-}
-
-resource "aws_route_table_association" "public1" {
-    subnet_id = aws_subnet.public-1.id
-    route_table_id = aws_route_table.public.id
-}
-
-resource "aws_route_table_association" "private2" {
-    subnet_id = aws_subnet.private-2.id
-    route_table_id = aws_route_table.private0.id
-}
-
-resource "aws_route_table_association" "private3" {
-    subnet_id = aws_subnet.private-3.id
-    route_table_id = aws_route_table.private1.id
-}
-
