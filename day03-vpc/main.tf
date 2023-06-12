@@ -102,3 +102,4 @@ resource "aws_route_table_association" "tf-private-rta" {
 output "subnet-count" {
     value = length(var.public_subnet_cidr)
 }
+
