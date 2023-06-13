@@ -6,15 +6,19 @@ resource "aws_vpc" "terraform21" {
   }
 }
 
+data "aws_availability_zones" "available" {
+  state = "available"
+}
+
 resource "aws_subnet" "tf-public" {
   count = length(var.public_subnet_cidr)
 
   vpc_id            = aws_vpc.terraform21.id
   cidr_block        = var.public_subnet_cidr[count.index]
-  availability_zone = var.availability_zone[count.index]
+  availability_zone = data.aws_availability_zones.available.names[count.index]
 
   tags = {
-    Name = "tf-public-${var.availability_zone[count.index]}"
+    Name = "tf-public-${var.public_subnet_cidr[count.index]}"
   }
 }
 
@@ -23,10 +27,10 @@ resource "aws_subnet" "tf-private" {
 
   vpc_id            = aws_vpc.terraform21.id
   cidr_block        = var.private_subnet_cidr[count.index]
-  availability_zone = var.availability_zone[count.index]
+  availability_zone = data.aws_availability_zones.available.names[count.index]
 
   tags = {
-    Name = "tf-private-${var.availability_zone[count.index]}"
+    Name = "tf-private-${var.private_subnet_cidr[count.index]}"
   }
 }
 
