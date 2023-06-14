@@ -1,4 +1,4 @@
-variable vpc_cidr {}
+variable "vpc_cidr" {}
 
-variable env_code {}
+variable "env_code" {}
 

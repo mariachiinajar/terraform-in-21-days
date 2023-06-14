@@ -74,7 +74,7 @@ resource "aws_instance" "public-instance" {
 
   tags = {
     Name = "public-instance-${var.env_code}"
-  } 
+  }
 }
 
 resource "aws_instance" "private-instance" {
