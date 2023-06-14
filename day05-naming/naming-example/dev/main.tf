@@ -2,12 +2,12 @@ resource "aws_vpc" "main" {
     cidr_block = var.vpc_cidr
 
     tags = {
-        Name = "main"
+        Name = "main-${var.env_code}"
     }
 }
 
-resource "aws_security_group" "allow_tls" {
-    name = "allow_tls"
+resource "aws_security_group" "main" {
+    name = "main-${var.env_code}"
     description = "Allow TLS inbound traffic"
     vpc_id = aws_vpc.main.id
 
@@ -27,6 +27,7 @@ resource "aws_security_group" "allow_tls" {
     }
 
     tags = {
-        Name = "allow tls"
+        Name = "allow tls - ${var.env_code}"
     }
 }
+

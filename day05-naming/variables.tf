@@ -6,3 +6,5 @@ variable "private_subnet_cidr" {}
 
 # variable "availability_zone" {}
 
+variable "env_code" {}
+

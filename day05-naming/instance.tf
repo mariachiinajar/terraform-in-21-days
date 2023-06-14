@@ -15,7 +15,7 @@ data "aws_ami" "amazonlinux" {
 }
 
 resource "aws_security_group" "tf-public-sg" {
-  name        = "tf-public-sg"
+  name        = "tf-public-sg-${var.env_code}"
   description = "allows public traffic"
   vpc_id      = aws_vpc.terraform21.id
 
@@ -35,12 +35,12 @@ resource "aws_security_group" "tf-public-sg" {
   }
 
   tags = {
-    Name = "tf-public-sg"
+    Name = "tf-public-sg-${var.env_code}"
   }
 }
 
 resource "aws_security_group" "tf-private-sg" {
-  name        = "tf-private-sg"
+  name        = "tf-private-sg-${var.env_code}"
   description = "allows private traffic"
   vpc_id      = aws_vpc.terraform21.id
 
@@ -60,7 +60,7 @@ resource "aws_security_group" "tf-private-sg" {
   }
 
   tags = {
-    Name = "tf-public-sg"
+    Name = "tf-public-sg-${var.env_code}"
   }
 }
 
@@ -73,7 +73,7 @@ resource "aws_instance" "public-instance" {
   associate_public_ip_address = true
 
   tags = {
-    Name = "public-instance"
+    Name = "public-instance-${var.env_code}"
   } 
 }
 
@@ -85,7 +85,7 @@ resource "aws_instance" "private-instance" {
   key_name               = "terraform"
 
   tags = {
-    Name = "private-instance"
+    Name = "private-instance-${var.env_code}"
   }
 }
 

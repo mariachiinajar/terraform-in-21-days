@@ -6,3 +6,5 @@ private_subnet_cidr = ["10.0.100.0/24", "10.0.101.0/24"]
 
 # availability_zone = ["us-west-1a", "us-west-1b"]
 
+env_code = "dev"
+

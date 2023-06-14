@@ -2,7 +2,7 @@ resource "aws_vpc" "terraform21" {
   cidr_block = var.vpc_cidr
 
   tags = {
-    Name = "terraform21"
+    Name = "terraform21-${var.env_code}"
   }
 }
 
@@ -18,7 +18,7 @@ resource "aws_subnet" "tf-public" {
   availability_zone = data.aws_availability_zones.available.names[count.index]
 
   tags = {
-    Name = "tf-public-${var.public_subnet_cidr[count.index]}"
+    Name = "tf-public-${var.public_subnet_cidr[count.index]}-${var.env_code}"
   }
 }
 
@@ -30,7 +30,7 @@ resource "aws_subnet" "tf-private" {
   availability_zone = data.aws_availability_zones.available.names[count.index]
 
   tags = {
-    Name = "tf-private-${var.private_subnet_cidr[count.index]}"
+    Name = "tf-private-${var.private_subnet_cidr[count.index]}-${var.env_code}"
   }
 }
 
@@ -47,7 +47,7 @@ resource "aws_eip" "tf-nat" {
 
   vpc = true
   tags = {
-    Name = "tf-nat-${count.index}"
+    Name = "tf-nat-${count.index}-${var.env_code}"
   }
 }
 
@@ -58,7 +58,7 @@ resource "aws_nat_gateway" "tf-nat-g" {
   subnet_id     = aws_subnet.tf-public[count.index].id
 
   tags = {
-    Name = "tf-nat-g-{count.index}"
+    Name = "tf-nat-g-${count.index}-${var.env_code}"
   }
 }
 
@@ -71,7 +71,7 @@ resource "aws_route_table" "tf-public-rt" {
   }
 
   tags = {
-    Name = "tf-public-rt"
+    Name = "tf-public-rt-${var.env_code}"
   }
 }
 
@@ -85,7 +85,7 @@ resource "aws_route_table" "tf-private-rt" {
   }
 
   tags = {
-    Name = "tf-private-rt"
+    Name = "tf-private-rt-${var.env_code}"
   }
 }
 
