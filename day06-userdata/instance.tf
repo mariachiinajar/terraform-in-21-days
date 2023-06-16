@@ -27,6 +27,23 @@ resource "aws_security_group" "tf-public-sg" {
     cidr_blocks = ["YOUR_IP_ADDRESS/32"]
   }
 
+  # SG rule for web service over the internet.
+  ingress {
+    description = "HTTP from home office"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["YOUR_IP_ADDRESS/32"]
+  }
+
+  ingress {
+    description = "HTTPS from home office"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["YOUR_IP_ADDRESS/32"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -71,6 +88,7 @@ resource "aws_instance" "tf-public-instance" {
   vpc_security_group_ids      = [aws_security_group.tf-public-sg.id]
   key_name                    = "terraform"
   associate_public_ip_address = true
+  user_data                   = file("user-data.sh")
 
   tags = {
     Name = "tf-public-instance-${var.progress}"
