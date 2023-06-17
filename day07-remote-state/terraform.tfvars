@@ -8,5 +8,5 @@ private_subnet_cidr = ["10.0.100.0/24", "10.0.101.0/24"]
 
 env_code = "dev"
 
-progress = "day6"
+progress = "day7"
 
