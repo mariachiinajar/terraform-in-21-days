@@ -8,9 +8,10 @@ terraform {
   required_version = ">= 1.2.0"
 
   backend "s3" {
-    bucket = "terraform-in-21-days-remote-state"
-    key    = "terraform.tfstate"
-    region = "us-east-1"
+    bucket         = "terraform-in-21-days-remote-state"
+    key            = "terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "terraform-in-21-days-remote-state"
   }
 }
 
