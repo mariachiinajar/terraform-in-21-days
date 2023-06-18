@@ -17,7 +17,7 @@ data "aws_ami" "amazonlinux" {
 resource "aws_security_group" "tf-public-sg" {
   name        = "tf-public-sg-${var.progress}"
   description = "allows public traffic"
-  vpc_id      = aws_vpc.terraform21.id
+  vpc_id      = data.terraform_remote_state.level1-network.outputs.vpc_id
 
   ingress {
     description = "SSH from home office"
@@ -27,19 +27,10 @@ resource "aws_security_group" "tf-public-sg" {
     cidr_blocks = ["YOUR_IP_ADDRESS/32"]
   }
 
-  # SG rule for web service over the internet.
   ingress {
     description = "HTTP from home office"
     from_port   = 80
     to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["YOUR_IP_ADDRESS/32"]
-  }
-
-  ingress {
-    description = "HTTPS from home office"
-    from_port   = 443
-    to_port     = 443
     protocol    = "tcp"
     cidr_blocks = ["YOUR_IP_ADDRESS/32"]
   }
@@ -59,14 +50,14 @@ resource "aws_security_group" "tf-public-sg" {
 resource "aws_security_group" "tf-private-sg" {
   name        = "tf-private-sg-${var.progress}"
   description = "allows private traffic"
-  vpc_id      = aws_vpc.terraform21.id
+  vpc_id      = data.terraform_remote_state.level1-network.outputs.vpc_id
 
   ingress {
     description = "SSH from VPC"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr]
+    cidr_blocks = [data.terraform_remote_state.level1-network.outputs.vpc_cidr]
   }
 
   egress {
@@ -84,7 +75,7 @@ resource "aws_security_group" "tf-private-sg" {
 resource "aws_instance" "tf-public-instance" {
   ami                         = data.aws_ami.amazonlinux.id
   instance_type               = "t3.micro"
-  subnet_id                   = aws_subnet.tf-public-sn[0].id
+  subnet_id                   = data.terraform_remote_state.level1-network.outputs.public_subnet_id[0]
   vpc_security_group_ids      = [aws_security_group.tf-public-sg.id]
   key_name                    = "terraform"
   associate_public_ip_address = true
@@ -98,7 +89,7 @@ resource "aws_instance" "tf-public-instance" {
 resource "aws_instance" "tf-private-instance" {
   ami                    = data.aws_ami.amazonlinux.id
   instance_type          = "t3.micro"
-  subnet_id              = aws_subnet.tf-private-sn[0].id
+  subnet_id              = data.terraform_remote_state.level1-network.outputs.private_subnet_id[0]
   vpc_security_group_ids = [aws_security_group.tf-private-sg.id]
   key_name               = "terraform"
 
@@ -110,8 +101,4 @@ resource "aws_instance" "tf-private-instance" {
 output "public_ip_address" {
   value = aws_instance.tf-public-instance.public_ip
 }
-
-# output "instnace_count" {
-#     value = aws_instance.tf-private-instance
-# }
 

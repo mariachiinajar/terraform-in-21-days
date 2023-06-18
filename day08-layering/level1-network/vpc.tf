@@ -34,11 +34,11 @@ resource "aws_subnet" "tf-private-sn" {
   }
 }
 
-resource "aws_internet_gateway" "tf-ig" {
+resource "aws_internet_gateway" "tf-igw" {
   vpc_id = aws_vpc.terraform21.id
 
   tags = {
-    Name = "tf-ig"
+    Name = "tf-igw"
   }
 }
 
@@ -66,9 +66,8 @@ resource "aws_route_table" "tf-public-rt" {
   vpc_id = aws_vpc.terraform21.id
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.tf-ig.id
+    gateway_id = aws_internet_gateway.tf-igw.id
   }
-
   tags = {
     Name = "tf-public-rt-${var.progress}"
   }

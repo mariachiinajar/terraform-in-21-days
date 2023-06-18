@@ -4,7 +4,7 @@ variable "public_subnet_cidr" {}
 
 variable "private_subnet_cidr" {}
 
-# variable "availability_zone" {}
+# variable availability_zone {}
 
 variable "env_code" {}
 
