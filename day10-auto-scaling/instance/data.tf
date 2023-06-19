@@ -3,7 +3,7 @@ data "terraform_remote_state" "network" {
 
   config = {
     bucket = "terraform-in-21-days-remote-state"
-    key    = "network.tfstate"
+    key    = "level1-network.tfstate"   # this key must match the name of the state file in your S3 bucket.
     region = "us-east-1"
   }
 }
