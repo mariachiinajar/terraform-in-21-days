@@ -17,14 +17,14 @@ data "aws_ami" "amazonlinux" {
 resource "aws_security_group" "tf-public-sg" {
   name        = "tf-public-sg-${var.progress}"
   description = "allows public traffic"
-  vpc_id      = data.terraform_remote_state.level1-network.outputs.vpc_id
+  vpc_id      = data.terraform_remote_state.network.outputs.vpc_id
 
   ingress {
     description = "SSH from home office"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["YOUR_IP_ADDRESS/32"]
+    cidr_blocks = ["119.206.110.22/32"]
   }
 
   egress {
@@ -42,14 +42,14 @@ resource "aws_security_group" "tf-public-sg" {
 resource "aws_security_group" "tf-private-sg" {
   name        = "tf-private-sg-${var.progress}"
   description = "allows private traffic"
-  vpc_id      = data.terraform_remote_state.level1-network.outputs.vpc_id
+  vpc_id      = data.terraform_remote_state.network.outputs.vpc_id
 
   ingress {
     description = "SSH from VPC"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [data.terraform_remote_state.level1-network.outputs.vpc_cidr]
+    cidr_blocks = [data.terraform_remote_state.network.outputs.vpc_cidr]
   }
 
   ingress {
@@ -75,7 +75,7 @@ resource "aws_security_group" "tf-private-sg" {
 resource "aws_instance" "tf-public-instance" {
   ami                         = data.aws_ami.amazonlinux.id
   instance_type               = "t3.micro"
-  subnet_id                   = data.terraform_remote_state.level1-network.outputs.public_subnet_id[0]
+  subnet_id                   = data.terraform_remote_state.network.outputs.public_subnet_id[0]
   vpc_security_group_ids      = [aws_security_group.tf-public-sg.id]
   key_name                    = "terraform"
   associate_public_ip_address = true
@@ -86,11 +86,11 @@ resource "aws_instance" "tf-public-instance" {
 }
 
 resource "aws_instance" "tf-private-instance" {
-  count = length(data.terraform_remote_state.level1-network.outputs.public_subnet_id)
+  count = length(data.terraform_remote_state.network.outputs.public_subnet_id)
 
   ami                    = data.aws_ami.amazonlinux.id
   instance_type          = "t3.micro"
-  subnet_id              = data.terraform_remote_state.level1-network.outputs.private_subnet_id[count.index]
+  subnet_id              = data.terraform_remote_state.network.outputs.private_subnet_id[count.index]
   vpc_security_group_ids = [aws_security_group.tf-private-sg.id]
   key_name               = "terraform"
   user_data              = file("user-data.sh")
