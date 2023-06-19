@@ -53,14 +53,6 @@ resource "aws_lb_target_group" "tf-load-balancer-tg" {
   }
 }
 
-resource "aws_lb_target_group_attachment" "tf-load-balancer-tga" {
-  count = length(aws_instance.tf-private-instance)
-
-  target_group_arn = aws_lb_target_group.tf-load-balancer-tg.arn
-  target_id        = aws_instance.tf-private-instance[count.index].id
-  port             = 80
-}
-
 resource "aws_lb_listener" "tf-load-balancer-listener" {
   load_balancer_arn = aws_lb.tf-load-balancer.arn
   port              = 80
